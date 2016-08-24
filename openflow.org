@@ -1,0 +1,74 @@
+* Ports:
+** Directions:
+*** Ingress
+*** Output
+** Three types of ports:
+*** Physical
+Ports that correspond to h/w interfaces on switches.
+If O/F switch is virtualised, the port represents a virtual slice of the
+corresponding h/w interface
+*** Logical
+Don't correspond to h/w interfaces. They are abstractions that are non-OF
+(eg loopback)
+Logical ports can have a Tunnel-ID (physical ports cannot)
+*** Reserved
+**** ALL (Rq)
+Output port that fwds packets received to all ports
+**** Controller (rq)
+In/Out: Communication port for controller.
+**** Table (Rq)
+Start of the OF pipeline. Sends the packet to the first table to be
+processed in the OF pipeline
+**** in_port (rq)
+Output port, the port where the packet came from.
+**** Any (rq)
+Special wildcard in some commands. Not actually used as in or out
+**** Local (opt)
+Port to the local ip stack
+**** Normal (opt)
+Send to the traditional pipeline of the switch
+**** Flood (opt)
+Flood via the normal pipeline of the switch
+
+Hybrid switches may support NORMAL and FLOOD, OF-only do not.
+** Standard ports are physical, logical and possibly the LOCAL reserved port
+Can be used as ingress/output and in groups
+
+* Tables
+** Switch types
+*** Hybrid
+Support OF operation and normal Et switching (L2 eth switching, VLAN isolation
+etc)
+*** OF-only
+** Pipeline:
+One switch has at least one table, can have more than one. A table contains multiple flow
+entries.
+*** High level overview:
+**** Packet in from ingress port, action set in empty
+**** Table 0. Always starts from here
+**** Next table until last table
+**** Execute action set
+**** Packet out
+**** If !match in table n and ! miss flow entry => drop
+*** Packet sent from table n can only go to a table m, m > n
+*** Last table's flows cannot contain Goto instructions
+*** If no more Goto's exist, action set is executed and packed is fwded
+*** No matches in a table = Table miss
+A tablle miss flow entry can specify how to handle misses in table
+** Flow entry: Defined by priority + Match fields, unique match if OFPFF_CHECK_OVERLAP set.
+If match happens on non-unique flows with same priority, undef behaviour
+
+| Match Fields | Priority | Counters | Instructions | Timeouts | Cookie |
+Match fields: match against packets, metadata from previous table
+Priority: precedence of entry in the table
+Counters: how many packets matched
+instructions: modify pipeline processing or action set
+timeouts: expire flow after idle or hard amount of time
+cookie: controller magic, not used for packet processing
+Priority = 0 (lowest) + wildcards in all fields (all omitted) = table-miss flow entry
+** Flow removal:
+*** Expiration
+**** Hard timeout
+**** Idle timeout
+*** Explicitly via the controller
+** TODO Group Table
