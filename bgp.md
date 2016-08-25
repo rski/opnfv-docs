@@ -36,10 +36,15 @@ https://www.juniper.net/documentation/en_US/junos13.3/topics/concept/routing-pro
 ## Definitions
 
 BGP: Border Gateway protocol
+
 Internal Peer (IBGP) : Peer in the same AS
+
 External Peer (EBGP): Peer in another AS
+
 AS: Autonomous System
+
 RIB: Routing Information Base, where routes are stored
+
 NLRI: Network layer reachability information, part of the BGP update message
 
 ## RIB ##

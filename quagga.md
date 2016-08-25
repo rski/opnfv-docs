@@ -36,12 +36,13 @@ GET http://172.16.0.16:8181/restconf/config/bgp:bgp-router/
 DELETE http://172.16.0.16:8181/restconf/config/bgp:bgp-router/
 
 PUT http://172.16.0.16:8181/restconf/config/bgp:bgp-router/
-{
-    "bgp-router": {
-        "local-as-identifier": "10.10.10.10",
-        "local-as-number": 108
+
+    {
+        "bgp-router": {
+            "local-as-identifier": "10.10.10.10",
+            "local-as-number": 108
+        }
     }
-}
 
 # Useful commands #
 
