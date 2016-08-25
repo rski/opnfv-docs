@@ -1,14 +1,22 @@
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**
 
-- [BPG Overview](#bpg-overview)
+- [BGP](#bgp)
+    - [Definitions](#definitions)
+    - [RIB](#rib)
+    - [BGP Messages](#bgp-messages)
+        - [OPEN](#open)
+        - [UPDATE](#update)
+        - [KEEPALIVE](#keepalive)
+        - [NOTIFICATION](#notification)
 - [OPNFV Setup](#opnfv-setup)
     - [Quagga](#quagga)
-        - [Thrift](#thrift)
+    - [Thrift](#thrift)
     - [ODL](#odl)
+    - [Neutron BGPVPN](#neutron-bgpvpn)
 
 <!-- markdown-toc end -->
-# BPG Overview
+# BGP
 
 BGP is a protocol that allows AS (autonomous systems) to exchange routing information.
 BGP is implemented over TCP.
@@ -23,17 +31,71 @@ http://www.enterprisenetworkingplanet.com/netsp/article.php/3615896/Networking-1
 https://www.juniper.net/documentation/en_US/junos13.3/topics/concept/routing-protocol-bgp-security-peering-session-understanding.html
 [RFC](https://tools.ietf.org/html/rfc4271)
 
+## Definitions
 
-# OPNFV Setup
+BGP: Border Gateway protocol
+Internal Peer (IBGP) : Peer in the same AS
+External Peer (EBGP): Peer in another AS
+AS: Autonomous System
+RIB: Routing Information Base, where routes are stored
+NLRI: Network layer reachability information, part of the BGP update message
 
-## Quagga
+## RIB ##
+
+Three tables:
+  * Adj-RIBs-in: Routing information learned from other BGP speakers
+  * Loc-RIBs: Routing information obtained by applying local policies to Adj-RIBs-in
+  * Adj-RIBs-out: Routing information to be sent to peers
+
+## BGP Messages ##
+
+### OPEN ###
+
+Messages that start a connection.
+
+  * Version: BGP version (probably 4)
+  * My AS: This 2-octet unsigned integer indicates the Autonomous System
+           number of the sender.
+  * Hold time: maximum seconds between KEEPALIVE and/or UPDATE messages (time ==0s || time>=3s)
+  * BGP Identifier: An IP given to the BGP speaker. Same for all interfaces of the speaker.
+
+
+### UPDATE ###
+
+Transfer routing information between peers.
+
+  * Withdrawn router length/Withdrawn routes: The length of the withdrawn routes field and the routes withdrawn from service.
+  * Total Path Attribute Length: The size of the Path attribute fields
+  * Path attributes: A list of <attribute type, attribute length, attribute value>. eg <ORIGIN, 1, 0>
+  * Network Layer Reachability Information: Kind of like a list of CIDRs. The IP ranges reachable.
+
+### KEEPALIVE ###
+
+Empty message to keep the connection alive. Only sent if hold time != 0.
+
+### NOTIFICATION ###
+
+   A NOTIFICATION message is sent when an error condition is detected.
+   The BGP connection is closed immediately after it is sent.
+   Contains information about the error.
+
+# OPNFV Setup #
+
+## Quagga ##
 
 Quagga is the BGP router.
 
-## Thrift
+## Thrift ##
 
 An adapter that connects ODL and Quagga
 
-## ODL
+## ODL ##
 
-Not sure what it does yet...
+Configures Neutron to use the BGP routing information and set up a VPN over those routes.
+Starts the bgp router.
+
+For a configuration see the [ODL VPNService guide](https://wiki.opendaylight.org/view/Vpnservice:Beryllium_User_Guide)
+
+## Neutron BGPVPN ##
+
+http://docs.openstack.org/developer/networking-bgpvpn/
