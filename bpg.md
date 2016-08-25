@@ -94,7 +94,31 @@ An adapter that connects ODL and Quagga
 Configures Neutron to use the BGP routing information and set up a VPN over those routes.
 Starts the bgp router.
 
-For a configuration see the [ODL VPNService guide](https://wiki.opendaylight.org/view/Vpnservice:Beryllium_User_Guide)
+### Configuration ###
+
+For a configuration example see the [ODL VPNService guide](https://wiki.opendaylight.org/view/Vpnservice:Beryllium_User_Guide)
+
+
+Steps:
+
+    * Set up mesh tunnels
+    Not sure what this exactly is. *TODO* ask Nikolas
+    * (Maybe) Start up quagga's bgp daemon.
+    * Add the quagga router to ODL. Maybe the previous step is done automatically here.
+    * Tell the router about a neighbor
+    * Create tunnel interfaces between two switches (which switches?)
+
+The expectation is:
+
+    1. Unique If-index is generated
+    2. 'Interface-state' operational DS is updated
+    3. Corresponding Nexthop Group Entry is created
+
+At this point, if the nexthop group entry is created, this test will be completed.
+
+Then the guide talks about creating VMs and adding them to the VPN networks. This is handled via the openstack api.
+
+
 
 ## Neutron BGPVPN ##
 
