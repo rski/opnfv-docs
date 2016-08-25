@@ -28,7 +28,9 @@ BGP is implemented over TCP.
 Useful links:
 
 http://www.enterprisenetworkingplanet.com/netsp/article.php/3615896/Networking-101-Understanding-BGP-Routing.htm
+
 https://www.juniper.net/documentation/en_US/junos13.3/topics/concept/routing-protocol-bgp-security-peering-session-understanding.html
+
 [RFC](https://tools.ietf.org/html/rfc4271)
 
 ## Definitions
@@ -43,6 +45,7 @@ NLRI: Network layer reachability information, part of the BGP update message
 ## RIB ##
 
 Three tables:
+
   * Adj-RIBs-in: Routing information learned from other BGP speakers
   * Loc-RIBs: Routing information obtained by applying local policies to Adj-RIBs-in
   * Adj-RIBs-out: Routing information to be sent to peers
@@ -127,7 +130,6 @@ Steps:
         Then $ telnet localhost $PORT
         password: foobarbaz
 
-l
     * Tell the router about a neighbor
 
 The expectation is:
