@@ -17,7 +17,7 @@ An example can be found on [Xmodulo](http://xmodulo.com/centos-bgp-router-quagga
 
 # OPNFV-Quagga #
 
-The source can be found (here)[https://github.com/nikolas-hermanns/opnfv-quagga-packaging]
+The source can be found [here](https://github.com/nikolas-hermanns/opnfv-quagga-packaging)
 
 ## Differences from Vanilla ##
 
