@@ -101,12 +101,34 @@ For a configuration example see the [ODL VPNService guide](https://wiki.opendayl
 
 Steps:
 
-    * Set up mesh tunnels
-    Not sure what this exactly is. *TODO* ask Nikolas
-    * (Maybe) Start up quagga's bgp daemon.
-    * Add the quagga router to ODL. Maybe the previous step is done automatically here.
+    * Set up mesh tunnels. These are tunnels between two OpenStack datacenters and connect OpenvSwitches. This does not need to be done if ODL is peered with a plain quagga instance because there is no OVS.
+    * Add a router to ODL. If the qthrift interface is used, then it will start quagga's bgp daemon.
+    For example:
+        PUT @ http://172.16.0.16:8181/restconf/config/bgp:bgp-router/
+        Body:
+        {
+            "bgp-router": {
+            "local-as-identifier": "10.10.10.10",
+            "local-as-number": 108
+            }
+        }
+
+        Now quagga's bgp daemon should be started:
+        root@node-9:~# ps aux |grep bgp
+        ~> quagga   17273  0.0  0.0 121268  3340 ?        Sl   Aug24   0:00 /usr/lib/quagga/bgpd -f /usr/lib/quagga/qthrift/bgpd.conf -p 8012 -Z ipc:///tmp/qzc-1
+        root     29265  0.0  0.0  10464   928 pts/21   S+   10:02   0:00 grep --color=auto bgp
+        root     29485  0.0  0.1 113404 15076 ?        Ss   Aug24   0:00 python /usr/lib/quagga/qthrift/odlvpn2bgpd.py
+        root     29616  0.0  0.1 195332 12420 ?        Sl   Aug24   0:00 python /usr/lib/quagga/qthrift/odlvpn2bgpd.py
+
+        and GET @ http://172.16.0.16:8181/restconf/config/bgp:bgp-router/ will return the same as the body of PUT.
+
+        To connect to bgpd, find the telnetport (2605 probably):
+        $ netstat -ptuna | grep bgpd
+        Then $ telnet localhost $PORT
+        password: foobarbaz
+
+l
     * Tell the router about a neighbor
-    * Create tunnel interfaces between two switches (which switches?)
 
 The expectation is:
 
@@ -116,8 +138,9 @@ The expectation is:
 
 At this point, if the nexthop group entry is created, this test will be completed.
 
-Then the guide talks about creating VMs and adding them to the VPN networks. This is handled via the openstack api.
+In a plain quagga-ODL scenario, ODL will ignore routes from Quagga due to lack of nexthops. To see route exchange, instances need to be started so that ODL will push the route information to Quagga.
 
+Then the guide talks about creating VMs and adding them to the VPN networks. This is handled via the openstack api.
 
 
 ## Neutron BGPVPN ##
