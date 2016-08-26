@@ -27,6 +27,16 @@ From the project's README:
 
 OPNFV quagga does not start the zebra daemon or any other daemon. Instead it starts the `opnfv-quagga` service, which is a daemon that interfaces quagga with ODL. The quagga bgpd is started by ODL when a rest call to create a router is sent to it.
 
+
+## Adding routers and peering ##
+
+    export own_ip=<your-managment-ip-which-is-reachable-by-the-router>
+    export remote_ip=<the-manamnet-ip-of-the-router>
+    /opt/opendaylight/bin/client -u karaf "odl:configure-bgp -op start-bgp-server --as-num 100 --router-id $own_ip"
+    /opt/opendaylight/bin/client -u karaf "odl:configure-bgp -op add-neighbor --ip $remote_ip --use-source-ip $own_ip --as-num 100"
+
+[Source](https://wiki.opnfv.org/display/ds/Peer+Opendaylight+with+a+BGP+router)
+
 ## Rest calls ##
 
 ### Routers ###
