@@ -35,11 +35,15 @@ OPNFV quagga does not start the zebra daemon or any other daemon. Instead it sta
     /opt/opendaylight/bin/client -u karaf "odl:configure-bgp -op start-bgp-server --as-num 100 --router-id $own_ip"
     /opt/opendaylight/bin/client -u karaf "odl:configure-bgp -op add-neighbor --ip $remote_ip --use-source-ip $own_ip --as-num 100"
 
+Note that if the opnfv-quagga service has restarted, the opendaylight service needs to be restarted as well.
+
 [Source](https://wiki.opnfv.org/display/ds/Peer+Opendaylight+with+a+BGP+router)
 
 ## Rest calls ##
 
 ### Routers ###
+
+N.B. These do not start the quagga service like odl:configure-bgp does.
 
 GET http://172.16.0.16:8181/restconf/config/bgp:bgp-router/
 
@@ -53,10 +57,25 @@ PUT http://172.16.0.16:8181/restconf/config/bgp:bgp-router/
             "local-as-number": 108
         }
     }
+    
+### Troubleshooting the router ###
+
+
+Note that if the opnfv-quagga service has restarted, the opendaylight service needs to be restarted as well.
+
+Check that the bgpd service can be started manually. This will fail if the config file is malformed:
+
+    /usr/lib/quagga/bgpd -f /usr/lib/quagga/qthrift/bgpd.conf
+
+To start it like opendaylight does:
+
+    /usr/lib/quagga/bgpd -f /usr/lib/quagga/qthrift/bgpd.conf -p 0 -Z ipc:///tmp/qzc-100
+
 
 # Useful commands #
 
     ps aux | grep quagga
+    watch -d "ps aux | grep bgp"
 
     netstat -ptuna | grep "bgpd\|zebra"
 
