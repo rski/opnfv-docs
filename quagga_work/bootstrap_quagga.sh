@@ -20,29 +20,37 @@ if [ -z "$FUNCTEST_CONTAINER_IP" ]; then
     exit 1
 fi
 
-if [ -z "$FUNCTEST_CONTAINER_NET" ]; then
-    echo "FUNCTEST_CONTAINER_NET is not set properly"
-    exit 1
-fi
-
 if [ -z "$CONTROLLER_IP" ]; then
     echo "CONTROLLER_IP is not set properly"
     exit 1
 fi
+
+# create a log file for bgpd and make sure bgpd can access it
+BGPD_LOG='/var/log/quagga/bgpd.log'
+touch $BGPD_LOG
+chown quagga.quagga $BGPD_LOG
 
 cat <<EOF > /etc/quagga/bgpd.conf
 ! -*- bgp -*-
 
 hostname bgpd
 password zebra
+log file $BGPD_LOG
+
 router bgp 200
  bgp router-id $FUNCTEST_CONTAINER_IP
- network $FUNCTEST_CONTAINER_NET
  neighbor $CONTROLLER_IP remote-as 100
- access-list all permit any
-log stdout
+ no neighbor $CONTROLLER_IP activate
+!
+ address-family vpnv4 unicast
+ neighbor $CONTROLLER_IP activate
+ exit-address-family
+!
+line vty
+ exec-timeout 0 0
+!
+end
 EOF
-
 
 # make sure bgpd has started, exit with failure if not
 service quagga restart
