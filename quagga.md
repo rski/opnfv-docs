@@ -7,9 +7,11 @@ A very useful hands-on introduction can be found [here](https://openmaniak.com/q
 
 # Vanilla Quagga #
 
-To install on Ubuntu:
+## Setting up bgpd manually ##
 
-    sudo apt install quagga
+Install quagga:
+
+    sudo apt install quagga -y
 
 ## GBP Peering ##
 
@@ -38,6 +40,19 @@ OPNFV quagga does not start the zebra daemon or any other daemon. Instead it sta
 Note that if the opnfv-quagga service has restarted, the opendaylight service needs to be restarted as well.
 
 [Source](https://wiki.opnfv.org/display/ds/Peer+Opendaylight+with+a+BGP+router)
+
+## Get quagga information from ODL ##
+
+To get a list of bgp neighbors:
+
+    /opt/opendaylight/bin/client -u karaf "odl:show-bgp  --cmd \"bgp neighbors\""
+
+The state of the peer should be Established.
+
+Also:
+
+    /opt/opendaylight/bin/client -u karaf "display-bgp-config"
+
 
 ## Rest calls ##
 
