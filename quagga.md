@@ -36,6 +36,17 @@ OPNFV quagga does not start the zebra daemon or any other daemon. Instead it sta
     export remote_ip=<the-manamnet-ip-of-the-router>
     /opt/opendaylight/bin/client -u karaf "odl:configure-bgp -op start-bgp-server --as-num 100 --router-id $own_ip"
     /opt/opendaylight/bin/client -u karaf "odl:configure-bgp -op add-neighbor --ip $remote_ip --use-source-ip $own_ip --as-num 100"
+    
+eg 
+
+    odl:configure-bgp -op start-bgp-server --as-num 100 --router-id 192.168.2.12
+    configure-bgp -op add-neighbor --ip 192.168.2.11 --use-source-ip 192.168.2.12 --as-num 200
+
+and 
+
+     configure-bgp -op add-neighbor --ip 192.168.2.11 --use-source-ip 192.168.2.12 --as-num 200
+     odl:configure-bgp -op stop-bgp-server
+
 
 Note that if the opnfv-quagga service has restarted, the opendaylight service needs to be restarted as well.
 
