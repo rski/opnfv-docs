@@ -97,6 +97,12 @@ To start it like opendaylight does:
 
     /usr/lib/quagga/bgpd -f /usr/lib/quagga/qthrift/bgpd.conf -p 0 -Z ipc:///tmp/qzc-100
 
+# BGP Routes #
+
+On bgp route filtering, advertisement, etc see:
+
+    http://xmodulo.com/filter-bgp-routes-quagga-bgp-router.html
+
 
 # Useful commands #
 
