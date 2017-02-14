@@ -1,0 +1,57 @@
+
+
+Basically:
+
+Undercloud uses ironic(w/ libvirt plugin) -> [Overcloud1] | [Overcloud2]
+-----------------------------------------------------
+Hypervisor
+-----------------------------------------------------
+
+* Build process:
+** Deploy undercloud
+** Take the OOO image and customize it (Computes and controllers all use the same image)
+   Makefile magic
+** Put those images in undercloud's glance
+** PXE boot the overcloud with ironic and get info about drives etc
+** PXE boot the overcloud and flash the overcloud images
+** Boot the overcloud
+   some node has a deploy_command file.
+   basically the overcloud is a heat stack in the undercloud.
+   It starts with cloud init, goes to the neutron metadata server and gets the info it needs.
+
+* Adding a feature to Apex
+** References:
+   https://gerrit.opnfv.org/gerrit/#/c/27983/
+   https://gerrit.opnfv.org/gerrit/#/c/27325/
+** Select the deployment scenario this will run in
+   lib/overcloud-deploy-functions.sh contains overcloud_deploy, which depending on the eanbled options
+   in the scenario .yaml file, it will enable the relevant heat templates which are in the undercloud
+** Make any modifications required to the base image
+   The Makefile in build/ calls the bash scripts that generate the overcloud images.
+*** This can be tested by running the makefile tarted that modifies the overcloud.
+    Once that works, you can deploy
+** Write the heat templates for your feature
+   These live in /usr/share and tim's repo: https://github.com/trozet/opnfv-tht
+   To use them in the Apex CI, submit a PR in tims repo and add the pr number in the
+   commit message as seen in the gluon PR.
+*** To test, delete the overcloud and run the deploy command found in the undercloud augmented with your heat files
+** Write the puppet modules
+*** To test, make sure the modules are uploaded in the overcloud image and deploy
+   This is done in conjunction with the above, since the heat templates call the puppet modules.
+** Add a profile for your puppet module in the modified ooo-puppet repo
+   This is what the heat templates will call and then this will in turn call the manifest above.
+   Similar to the heat templates, add a pr number for your pr to this repo:
+   https://github.com/trozet/opnfv-puppet-tripleo
+*** This is tested together with the above
+** Deploy apex from scratch to make sure this whole thing works
+   or push to the apex repo and have the CI do it for you
+
+
+To test, delete the stack and use the deploy_command.
+
+* Working with Apex
+** Ssh into the Apex host
+   from the baremetal, do
+#+BEGIN_SRC shell
+opnfv-util undercloud
+#+END_SRC
