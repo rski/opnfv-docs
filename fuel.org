@@ -1,0 +1,53 @@
+In order for the container to talk to the endpoints of the OS nodes
+(which presumably are tin the 192.168.0.0/24 network), a vlan interface
+needs to be added to the baremetal host under which fuel is running.
+Here, the VLAN id is the one of the 192.168.0.0/24 network
+(note that there could be multiple VLAN ids, out of scope of this guide)
+and iface is the baremetal interface of the libvirt network.
+
+To create the network interface and fix the iptables rules:
+#+BEGIN_SRC shell
+  vlan=101
+  iface=fuel2
+  ip link add name $iface.$vlan link $iface type vlan id $vlan
+  ip link set $iface.$vlan up
+  ip addr add 192.168.0.253
+  dev=$iface.$vlan
+  ip addr add 192.168.0.253 $dev
+  ip addr add 192.168.0.253/24 $dev
+  ifconfig fuel2.101
+  sudo iptables -D FORWARD -o fuel2 -j REJECT --reject-with icmp-port-unreachable
+  sudo iptables -D FORWARD -i fuel2 -j REJECT --reject-with icmp-port-unreachable
+  sudo iptables -D FORWARD -o fuel3 -j REJECT --reject-with icmp-port-unreachable
+  sudo iptables -D FORWARD -i fuel3 -j REJECT --reject-with icmp-port-unreachable
+  sudo iptables -D FORWARD -o fuel4 -j REJECT --reject-with icmp-port-unreachable
+  sudo iptables -D FORWARD -i fuel4 -j REJECT --reject-with icmp-port-unreachable
+  ip addr add 192.168.0.253/24 dev $dev
+  ifconfig fuel2.101
+  iptables -S FORWARD
+  iptables -S |grep fuel2
+  iptables -S |grep fuel2.101
+  iptables -S |grep fuel2.101
+  ip r
+  iptables -S |grep fuel2
+  ip r
+  route -n
+  ifconfig fuel2
+  ifconfig fuel2
+#+END_SRC
+
+What also needs to be done is to delete the routing entry for the untagged interface:
+#+BEGIN_SRC shell
+[user@infra-58-sdnvpn ~]$ sudo ip r del 192.168.0.0/24 dev fuel2
+[sudo] password for user:
+[user@infra-58-sdnvpn ~]$ ip r
+default via 100.64.210.1 dev ens1f0  proto static  metric 100
+10.20.0.0/24 dev fuel1  proto kernel  scope link  src 10.20.0.1
+100.64.210.0/24 dev ens1f0  proto kernel  scope link  src 100.64.210.10  metric 100
+172.16.0.0/24 dev fuel4  proto kernel  scope link  src 172.16.0.1
+172.17.0.0/16 dev docker0  proto kernel  scope link  src 172.17.0.1
+192.168.0.0/24 dev fuel2.101  proto kernel  scope link  src 192.168.0.253
+192.168.122.0/24 dev virbr0  proto kernel  scope link  src 192.168.122.1
+#+END_SRC
+
+Based on Jose Lausuch's work.
